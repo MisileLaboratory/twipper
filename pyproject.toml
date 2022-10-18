@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "twipper"
+version = "0.1.0"
+description = "Twipper"
+authors = ["MisileLaboratory"]
+license = "MisileLab License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10.8"
+uvicorn = {extras = ["standard"], version = "0.18.3"}
+fastapi = "0.85.1"
+pymongo = "4.2.0"
+tomli = "2.0.1"
+misilelibpy = { path = "./misilelib/misilelib-python" }
+requests = "2.28.1"
+python-youtube = "0.8.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

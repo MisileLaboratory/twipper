@@ -1,0 +1,8 @@
+[db]
+host = "example.com"
+port = 0
+user = "user"
+password = "password"
+
+[youtube]
+key = ""
