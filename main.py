@@ -4,9 +4,8 @@ from pyyoutube import Video
 from pyyoutube import Api as yapi
 from requests import get
 from tomli import loads
-from json import loads as jloads
 from misilelibpy import read_once
-from asyncio import sleep
+from asyncio import sleep as asleep
 
 config = loads(read_once("config.toml"))
 web = FastAPI()
@@ -16,6 +15,7 @@ cooltimes = {}
 
 @web.post("/post/{videoid}")
 async def post_streamer(videoid: str, myid: str):
+    # TODO: add some dict so single twitch login or youtube login can handle
     video: Video = youtubeapi.get_video_by_id(video_id=videoid).items[0] # type: ignore
     try:
         cooltimes[f"{myid}-{videoid}"]
@@ -25,7 +25,7 @@ async def post_streamer(videoid: str, myid: str):
         raise HTTPException(status_code=429)
     if video.snippet.liveBroadcastContent != "live": # type: ignore
         raise HTTPException(status_code=404)
-    if client.get_database("twipper").get_collection(video.snippet.channelId) == None: # type: ignore
+    if client.get_database("twipper").get_collection(video.snippet.channelId) is None: # type: ignore
         table = client.get_database("twipper").create_collection(video.snippet.channelId) # type: ignore
     else:
         table = client.get_database("twipper").get_collection(video.snippet.channelId) # type: ignore
@@ -33,6 +33,18 @@ async def post_streamer(videoid: str, myid: str):
         table.insert_one({"id": myid, "point": 0})
     p = table.find_one(filter={"id": myid})["point"] # type: ignore
     table.find_one_and_replace(filter={"id": myid}, replacement={"id": myid, "point": p + config["point"]["view"]})
-    await sleep(600)
+    await asleep(600)
     del cooltimes[f"{myid}-{videoid}"]
+
+@web.get("/get/point")
+async def get_point():
+    # TODO: get_point_backend()
+    pass
+
+def main():
+    while True:
+        # TODO: users = get_users()
+        # TODO: get_datas()
+        # TODO: check_and_insert()
+        sleep(600)
 
