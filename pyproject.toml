@@ -15,7 +15,8 @@ tomli = "2.0.1"
 misilelibpy = { path = "./misilelib/misilelib-python" }
 requests = "2.28.1"
 python-youtube = "0.8.3"
-slowapi = "^0.1.6"
+slowapi = "0.1.6"
+tomli-w = "1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -6,3 +6,8 @@ password = "password"
 
 [youtube]
 key = ""
+
+[twitch]
+id = ""
+secret = ""
+

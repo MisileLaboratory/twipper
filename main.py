@@ -2,10 +2,11 @@ from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
 from pyyoutube import Video
 from pyyoutube import Api as yapi
-from requests import get
+from requests import get, post
 from requests.sessions import Request
 from tomli import loads
-from misilelibpy import read_once
+from tomli_w import dumps
+from misilelibpy import read_once, write_once
 from asyncio import sleep
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -50,7 +51,7 @@ async def post_streamer(pvideoid: str, myid: str)
 
 @web.get("/get/point/{streamerid}")
 @limiter.limit("6000/hour")
-async def get_point(request: Request, streamerid: str, userid: str): # type: ignore
+async def get_point(request: Request, streamerid: str, userid: str):
     streamer = client.get_database("twipper").get_collection("user").find_one(filter={"streamer": True, "id": streamerid})
     if streamer is None:
         raise HTTPException(status_code=404)
@@ -64,7 +65,7 @@ async def get_point(request: Request, streamerid: str, userid: str): # type: ign
 
 @web.get("/get/user/{userid}")
 @limiter.limit("60/minute")
-async def get_universal_id(request: Request, userid: str, twitch: bool): # type: ignore
+async def get_universal_id(request: Request, userid: str, twitch: bool):
     if twitch:
         a = client.get_database("twipper").get_collection("user").find_one(filter={"tid": userid})
     else:
@@ -73,11 +74,24 @@ async def get_universal_id(request: Request, userid: str, twitch: bool): # type:
         return a
     raise HTTPException(status_code=404)
 
+# I will make it
+def divide_elements(l: list, n: int = 100):
+    return []
+
 async def main():
+    c = loads(read_once("config.toml"))
+    key = c.get("key", None)
+    if key is None:
+        c["twitch"]["key"] = post(f"https://id.twitch.tv/oauth2/token?client_id={c['id']}&client_secret={c['key']}&grant_type=client_credentials").json()["access_token"]
+        write_once("config.toml", dumps(c))
+        key = c["twitch"]["key"]
     while True:
         streamers = list(client.get_database("twipper").get_collection("user").find(filter={"streamer": True}))
         streamers = [x for x in streamers if x["tid"] is not None]
-        # TODO: get_datas()
+        lstreamers = []
+        for i in divide_elements(lstreamers):
+            response = get("https://api.twitch.tv/helix/streams", params={"user_login": streamers}, headers={"Authorization": f"Bearer {key}", "Client-id": c["twitch"]["id"]})
+            # TODO: get some live streamer
         # TODO: check_and_insert()
         await sleep(600)
 
